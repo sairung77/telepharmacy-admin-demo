@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import { Plus } from 'lucide-react'
 import { branches, employees, provinces } from '../../../data/mockData'
 
 export default function BranchesTab({ company }) {
@@ -8,11 +7,8 @@ export default function BranchesTab({ company }) {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
+      <div className="mb-4">
         <p className="text-sm text-slate-600">สาขาของ <span className="font-medium">{company.name}</span></p>
-        <button className="flex items-center gap-2 px-3 py-2 bg-sky-500 text-white text-xs font-medium rounded-lg hover:bg-sky-600">
-          <Plus size={14} /> เพิ่มสาขา
-        </button>
       </div>
 
       <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">

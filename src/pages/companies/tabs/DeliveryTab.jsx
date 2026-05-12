@@ -55,7 +55,6 @@ export default function DeliveryTab({ company }) {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <p className="text-xs text-slate-500">ข้อมูลบันทึกใน <code>telepharmacy_db.delivery_provider_credentials</code></p>
         <button onClick={openAdd}
           className="flex items-center gap-2 px-3 py-2 bg-sky-500 text-white text-xs font-medium rounded-lg hover:bg-sky-600">
           <Plus size={14} /> เพิ่ม Provider

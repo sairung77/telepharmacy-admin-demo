@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { companies, branches } from '../../data/mockData'
 import Badge from '../../components/Badge'
 
@@ -20,11 +20,8 @@ export default function CompanyList() {
 
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6">
         <h2 className="text-xl font-bold text-slate-800">รายการร้านขายยา</h2>
-        <button className="flex items-center gap-2 px-4 py-2 bg-sky-500 text-white text-sm font-medium rounded-lg hover:bg-sky-600">
-          <Plus size={16} /> เพิ่มร้านขายยา
-        </button>
       </div>
 
       {/* Filters */}
