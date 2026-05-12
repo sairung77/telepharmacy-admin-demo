@@ -17,20 +17,14 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/*" element={
-        <RequireAuth>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/companies" element={<CompanyList />} />
-              <Route path="/companies/:companyId" element={<CompanyDetail />} />
-              <Route path="/companies/:companyId/branches/:branchId" element={<BranchDetail />} />
-              <Route path="/providers" element={<ProviderList />} />
-            </Routes>
-          </Layout>
-        </RequireAuth>
-      } />
+      <Route path="/" element={<RequireAuth><Layout /></RequireAuth>}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="companies" element={<CompanyList />} />
+        <Route path="companies/:companyId" element={<CompanyDetail />} />
+        <Route path="companies/:companyId/branches/:branchId" element={<BranchDetail />} />
+        <Route path="providers" element={<ProviderList />} />
+      </Route>
     </Routes>
   )
 }
