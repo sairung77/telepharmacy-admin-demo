@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, Outlet } from 'react-router-dom'
 import { LayoutDashboard, Store, Truck, LogOut } from 'lucide-react'
 
 const navItems = [
@@ -13,7 +13,7 @@ const MOCK_USER = {
   initials: 'AU',
 }
 
-export default function Layout({ children }) {
+export default function Layout() {
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -77,7 +77,7 @@ export default function Layout({ children }) {
 
       {/* Main */}
       <main className="flex-1 overflow-auto bg-slate-50">
-        {children}
+        <Outlet />
       </main>
     </div>
   )
