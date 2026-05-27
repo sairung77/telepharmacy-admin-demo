@@ -4,14 +4,12 @@ import { companies } from '../../data/mockData'
 import Breadcrumb from '../../components/Breadcrumb'
 import Badge from '../../components/Badge'
 import GeneralTab from './tabs/GeneralTab'
-import LineLiffTab from './tabs/LineLiffTab'
-import DeliveryTab from './tabs/DeliveryTab'
 import BranchesTab from './tabs/BranchesTab'
 
 const modeLabel = { off: 'ปิด', pos: 'POS Mode', ep: 'EP Mode' }
 const modeColor = { off: 'red', pos: 'blue', ep: 'yellow' }
 
-const TABS = ['ทั่วไป', 'LINE LIFF', 'Delivery Providers', 'สาขาทั้งหมด']
+const TABS = ['ทั่วไป', 'สาขาทั้งหมด']
 
 export default function CompanyDetail() {
   const { companyId } = useParams()
@@ -50,8 +48,6 @@ export default function CompanyDetail() {
       </div>
 
       {activeTab === 'ทั่วไป' && <GeneralTab company={company} />}
-      {activeTab === 'LINE LIFF' && <LineLiffTab company={company} />}
-      {activeTab === 'Delivery Providers' && <DeliveryTab company={company} />}
       {activeTab === 'สาขาทั้งหมด' && <BranchesTab company={company} />}
     </div>
   )

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, ChevronLeft, ChevronRight, Network } from 'lucide-react'
 import { companies, branches } from '../../data/mockData'
 import Badge from '../../components/Badge'
 
@@ -11,13 +11,21 @@ const PAGE_SIZE = 10
 export default function CompanyList() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
-  const [modeFilter, setModeFilter] = useState('all')
+  const [filterType, setFilterType] = useState('all')
   const [page, setPage] = useState(1)
 
   const filtered = companies.filter(c => {
     const matchName = c.name.toLowerCase().includes(search.toLowerCase())
-    const matchMode = modeFilter === 'all' || c.telepharmacy_mode === modeFilter
-    return matchName && matchMode
+    const compBranches = branches.filter(b => b.company_id === c.id)
+    const hasNetwork = compBranches.some(b => b.is_network_pharmacy)
+    
+    let matchType = true
+    if (filterType === 'network') matchType = hasNetwork
+    else if (filterType === 'pos') matchType = c.telepharmacy_mode === 'pos'
+    else if (filterType === 'ep') matchType = c.telepharmacy_mode === 'ep'
+    else if (filterType === 'telepharmacy') matchType = c.telepharmacy_mode === 'pos' || c.telepharmacy_mode === 'ep'
+
+    return matchName && matchType
   })
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
@@ -25,7 +33,7 @@ export default function CompanyList() {
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   const handleSearch = (val) => { setSearch(val); setPage(1) }
-  const handleMode = (val) => { setModeFilter(val); setPage(1) }
+  const handleFilter = (val) => { setFilterType(val); setPage(1) }
 
   return (
     <div className="p-8">
@@ -34,7 +42,7 @@ export default function CompanyList() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 mb-4">
+      <div className="flex flex-wrap gap-3 mb-4">
         <div className="relative">
           <Search size={15} className="absolute left-3 top-2.5 text-slate-400" />
           <input
@@ -46,12 +54,13 @@ export default function CompanyList() {
           />
         </div>
         <select
-          value={modeFilter}
-          onChange={e => handleMode(e.target.value)}
+          value={filterType}
+          onChange={e => handleFilter(e.target.value)}
           className="px-3 py-2 text-sm border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
         >
-          <option value="all">Telepharmacy Mode ทั้งหมด</option>
-          <option value="off">ปิด</option>
+          <option value="all">ร้านค้าทั้งหมด</option>
+          <option value="network">ร้านยาเครือข่าย</option>
+          <option value="telepharmacy">Telepharmacy ทั้งหมด</option>
           <option value="pos">POS Mode</option>
           <option value="ep">EP Mode</option>
         </select>
@@ -65,6 +74,12 @@ export default function CompanyList() {
               <th className="text-left px-4 py-3 font-medium text-slate-600">ชื่อร้านขายยา</th>
               <th className="text-left px-4 py-3 font-medium text-slate-600">เลขทะเบียน อย.</th>
               <th className="text-center px-4 py-3 font-medium text-slate-600">สาขา</th>
+              <th className="text-center px-4 py-3 font-medium text-slate-600">
+                <div className="flex items-center justify-center gap-1">
+                  <Network size={13} className="text-indigo-500" />
+                  ร้านยาเครือข่าย
+                </div>
+              </th>
               <th className="text-left px-4 py-3 font-medium text-slate-600">Telepharmacy Mode</th>
               <th className="text-left px-4 py-3 font-medium text-slate-600">วันที่สร้าง</th>
               <th className="px-4 py-3"></th>
@@ -73,17 +88,31 @@ export default function CompanyList() {
           <tbody className="divide-y divide-slate-100">
             {paginated.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-slate-400">ไม่พบร้านขายยา</td>
+                <td colSpan={7} className="px-4 py-10 text-center text-slate-400">ไม่พบร้านขายยา</td>
               </tr>
             )}
             {paginated.map(c => {
-              const branchCount = branches.filter(b => b.company_id === c.id).length
+              const compBranches = branches.filter(b => b.company_id === c.id)
+              const branchCount = compBranches.length
+              const networkCount = compBranches.filter(b => b.is_network_pharmacy).length
               return (
                 <tr key={c.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => navigate(`/companies/${c.id}`)}>
                   <td className="px-4 py-3 font-medium text-slate-800">{c.name}</td>
                   <td className="px-4 py-3 text-slate-600">{c.license_number}</td>
                   <td className="px-4 py-3 text-center">
                     <Badge color="gray">{branchCount}</Badge>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    {networkCount > 0 ? (
+                      <div className="flex items-center justify-center gap-1.5">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+                          <Network size={11} />
+                          {networkCount}/{branchCount} สาขา
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400">-</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <Badge color={modeColor[c.telepharmacy_mode]}>{modeLabel[c.telepharmacy_mode]}</Badge>

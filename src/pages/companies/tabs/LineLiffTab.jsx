@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Eye, EyeOff, Copy, Check } from 'lucide-react'
+import { branches } from '../../../data/mockData'
 
-function MaskedInput({ value, onChange, label, fieldName, multiline = false }) {
+function MaskedInput({ value, onChange, label, multiline = false }) {
   const [show, setShow] = useState(false)
   return (
     <div>
@@ -34,7 +35,7 @@ function MaskedInput({ value, onChange, label, fieldName, multiline = false }) {
   )
 }
 
-function ReadonlyWithCopy({ label, value, fieldName }) {
+function ReadonlyWithCopy({ label, value }) {
   const [copied, setCopied] = useState(false)
   const handleCopy = () => {
     navigator.clipboard.writeText(value)
@@ -57,18 +58,39 @@ function ReadonlyWithCopy({ label, value, fieldName }) {
   )
 }
 
-export default function LineLiffTab({ company }) {
-  const [form, setForm] = useState({ ...company.line_credential })
+export default function LineLiffTab({ branch }) {
+  const [form, setForm] = useState({
+    line_channel_id: branch?.line_credential?.line_channel_id || '',
+    line_channel_secret: branch?.line_credential?.line_channel_secret || '',
+    line_channel_access_token: branch?.line_credential?.line_channel_access_token || '',
+    liff_id: branch?.line_credential?.liff_id || '',
+  })
   const [saved, setSaved] = useState(false)
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
-  const liff_url = `https://liff.line.me/${form.liff_id}`
-  const webhook_url = `https://api.telepharmacy.th/webhook/${company.id}`
+  const liff_url = form.liff_id ? `https://liff.line.me/${form.liff_id}` : ''
+  const webhook_url = `https://api.telepharmacy.th/webhook/branches/${branch?.id}`
+
+  const handleSave = () => {
+    const target = branches.find(b => b.id === branch?.id)
+    if (target) {
+      target.line_credential = { ...form }
+    }
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  const handleCancel = () => {
+    setForm({
+      line_channel_id: branch?.line_credential?.line_channel_id || '',
+      line_channel_secret: branch?.line_credential?.line_channel_secret || '',
+      line_channel_access_token: branch?.line_credential?.line_channel_access_token || '',
+      liff_id: branch?.line_credential?.liff_id || '',
+    })
+  }
 
   return (
     <div className="max-w-xl space-y-6">
-     
-
       {saved && (
         <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm px-4 py-2.5 rounded-lg">
           บันทึกข้อมูลสำเร็จ
@@ -84,10 +106,10 @@ export default function LineLiffTab({ company }) {
             className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 font-mono" />
         </div>
         <MaskedInput label="Channel Secret" value={form.line_channel_secret}
-          onChange={e => set('line_channel_secret', e.target.value)} fieldName="line_channel_secret" />
+          onChange={e => set('line_channel_secret', e.target.value)} />
         <MaskedInput label="Channel Access Token" value={form.line_channel_access_token}
           onChange={e => set('line_channel_access_token', e.target.value)}
-          fieldName="line_channel_access_token" multiline />
+          multiline />
       </section>
 
       {/* LIFF */}
@@ -99,20 +121,19 @@ export default function LineLiffTab({ company }) {
             placeholder="{channelId}-{suffix}"
             className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 font-mono" />
         </div>
-        <ReadonlyWithCopy label="LIFF URL (auto-generated)" value={liff_url} fieldName="computed: https://liff.line.me/{liff_id}" />
+        <ReadonlyWithCopy label="LIFF URL (auto-generated)" value={liff_url} />
       </section>
 
       {/* Webhook */}
       <section className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm">
         <h3 className="text-sm font-semibold text-slate-700 mb-4">Webhook</h3>
-        <ReadonlyWithCopy label="Webhook URL (system-generated — copy ไปตั้งใน LINE Console)" value={webhook_url}
-          fieldName="computed: /webhook/{company_id}" />
+        <ReadonlyWithCopy label="Webhook URL (system-generated — copy ไปตั้งใน LINE Console)" value={webhook_url} />
       </section>
 
       <div className="flex gap-2">
-        <button onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000) }}
+        <button onClick={handleSave}
           className="px-5 py-2 bg-sky-500 text-white text-sm font-medium rounded-lg hover:bg-sky-600">บันทึก</button>
-        <button className="px-5 py-2 border text-sm font-medium rounded-lg hover:bg-slate-50 text-slate-600">ยกเลิก</button>
+        <button onClick={handleCancel} className="px-5 py-2 border text-sm font-medium rounded-lg hover:bg-slate-50 text-slate-600">ยกเลิก</button>
       </div>
     </div>
   )

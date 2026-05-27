@@ -1,10 +1,11 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Store, Truck, LogOut } from 'lucide-react'
+import { LayoutDashboard, Store, Truck, LogOut, PackagePlus } from 'lucide-react'
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'แดชบอร์ด' },
   { to: '/companies', icon: Store, label: 'จัดการร้านขายยา' },
   { to: '/providers', icon: Truck, label: 'จัดการ Provider' },
+  { to: '/medication-sets', icon: PackagePlus, label: 'จัดการชุดยา' },
 ]
 
 const MOCK_USER = {
