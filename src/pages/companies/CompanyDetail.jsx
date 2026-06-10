@@ -5,11 +5,8 @@ import Breadcrumb from '../../components/Breadcrumb'
 import Badge from '../../components/Badge'
 import GeneralTab from './tabs/GeneralTab'
 import BranchesTab from './tabs/BranchesTab'
-
 const modeLabel = { off: 'ปิด', pos: 'POS Mode', ep: 'EP Mode' }
 const modeColor = { off: 'red', pos: 'blue', ep: 'yellow' }
-
-const TABS = ['ทั่วไป', 'สาขาทั้งหมด']
 
 export default function CompanyDetail() {
   const { companyId } = useParams()
@@ -17,6 +14,9 @@ export default function CompanyDetail() {
 
   const company = companies.find(c => c.id === Number(companyId))
   if (!company) return <div className="p-8 text-slate-500">ไม่พบร้านขายยา</div>
+
+  // LINE LIFF จัดการที่ระดับสาขาทุก mode → ไม่มี tab ระดับบริษัท
+  const TABS = ['ทั่วไป', 'สาขาทั้งหมด']
 
   return (
     <div className="p-8">

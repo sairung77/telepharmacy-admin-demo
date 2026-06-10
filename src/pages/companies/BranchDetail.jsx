@@ -7,7 +7,7 @@ import Badge from '../../components/Badge'
 import LineLiffTab from './tabs/LineLiffTab'
 import DeliveryTab from './tabs/DeliveryTab'
 
-const TABS = ['ข้อมูลสาขา', 'LINE LIFF', 'ผู้จัดส่ง (Delivery)', 'พนักงาน']
+// TABS สร้างใน component เพื่อ dynamic ตาม telepharmacy_mode (ดูด้านล่าง)
 
 function Field({ label, value }) {
   return (
@@ -225,6 +225,9 @@ export default function BranchDetail() {
   const branch  = branches.find(b => b.id === Number(branchId))
   if (!company || !branch) return <div className="p-8 text-slate-500">ไม่พบข้อมูล</div>
 
+  // LINE LIFF อยู่ที่ระดับสาขาทุก mode (1 LineOA per Branch)
+  const TABS = ['ข้อมูลสาขา', 'LINE LIFF', 'ผู้จัดส่ง (Delivery)', 'พนักงาน']
+
   return (
     <div className="p-8">
       <Breadcrumb items={[
@@ -255,7 +258,7 @@ export default function BranchDetail() {
       </div>
 
       {activeTab === 'ข้อมูลสาขา' && <BranchInfoTab branch={branch} />}
-      {activeTab === 'LINE LIFF' && <LineLiffTab company={company} branch={branch} />}
+      {activeTab === 'LINE LIFF' && <LineLiffTab branch={branch} />}
       {activeTab === 'ผู้จัดส่ง (Delivery)' && <DeliveryTab company={company} branch={branch} />}
       {activeTab === 'พนักงาน' && <EmployeesTab branch={branch} />}
     </div>

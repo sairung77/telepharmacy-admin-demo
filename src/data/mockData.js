@@ -44,6 +44,12 @@ export const companies = [
     tax_id: '0105565012345',
     license_number: 'ร.อ. 123/2568',
     telepharmacy_mode: 'ep',
+    line_credential: {
+      line_channel_id: '2001111001',
+      line_channel_secret: 'medcare-company-secret-ep',
+      line_channel_access_token: 'eyJhbGciOiJIUzI1NiJ9.medcareCompanyToken',
+      liff_id: '2001111001-MedCareEP',
+    },
     address: {
       address1: '123 ถนนพหลโยธิน',
       address2: '',
@@ -76,6 +82,12 @@ export const companies = [
     tax_id: '0105567011111',
     license_number: 'ร.อ. 789/2568',
     telepharmacy_mode: 'ep',
+    line_credential: {
+      line_channel_id: '2003333001',
+      line_channel_secret: 'clinic-company-secret-ep',
+      line_channel_access_token: 'eyJhbGciOiJIUzI1NiJ9.clinicCompanyToken',
+      liff_id: '2003333001-ClinicEP',
+    },
     address: {
       address1: '789 ถนนสีลม',
       address2: '',
@@ -124,6 +136,12 @@ export const companies = [
     tax_id: '0105570044444',
     license_number: 'ร.อ. 678/2568',
     telepharmacy_mode: 'ep',
+    line_credential: {
+      line_channel_id: '2006666001',
+      line_channel_secret: 'phuket-company-secret-ep',
+      line_channel_access_token: 'eyJhbGciOiJIUzI1NiJ9.phuketCompanyToken',
+      liff_id: '2006666001-PhuketEP',
+    },
     address: {
       address1: '333 ถนนภูเก็ต',
       address2: '',
