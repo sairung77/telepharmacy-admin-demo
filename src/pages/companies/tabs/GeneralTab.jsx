@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { provinces, cities, districts } from '../../../data/mockData'
+import { provinces, cities, districts, companies } from '../../../data/mockData'
 
 const modeOptions = [
   { value: 'off', label: 'ปิด',      color: 'bg-red-100 text-red-700 border-red-300' },
@@ -19,6 +19,16 @@ function InfoRow({ label, value }) {
 export default function GeneralTab({ company }) {
   const [telepharmacyMode, setTelepharmacyMode] = useState(company.telepharmacy_mode)
   const [saved, setSaved] = useState(false)
+
+  const handleModeChange = (mode) => {
+    setTelepharmacyMode(mode)
+    const target = companies.find(c => c.id === company?.id)
+    if (target) {
+      target.telepharmacy_mode = mode
+    }
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
 
   const provinceName = provinces.find(p => p.id === company.address.province_id)?.name || ''
   const cityName     = cities.find(c => c.id === company.address.city_id)?.name || ''
@@ -49,7 +59,7 @@ export default function GeneralTab({ company }) {
         <h3 className="text-sm font-semibold text-slate-700 mb-3">Telepharmacy Mode</h3>
         <div className="flex gap-2">
           {modeOptions.map(opt => (
-            <button key={opt.value} onClick={() => setTelepharmacyMode(opt.value)}
+            <button key={opt.value} onClick={() => handleModeChange(opt.value)}
               className={`px-4 py-2 text-sm rounded-lg border-2 font-medium transition-all ${
                 telepharmacyMode === opt.value ? opt.color : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
               }`}>

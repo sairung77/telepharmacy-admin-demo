@@ -1,22 +1,21 @@
 import { useState } from 'react'
 import { Plus, Eye, EyeOff } from 'lucide-react'
-import { deliveryProviders } from '../../../data/mockData'
+import { deliveryProviders, branches } from '../../../data/mockData'
 import Badge from '../../../components/Badge'
 import SlideOver from '../../../components/SlideOver'
 
-const emptyForm = {
+const getEmptyForm = (branchId) => ({
   provider_code: '',
-  scope: 'company',
-  branch_id: null,
+  branch_id: branchId || null,
   api_key_enc: '',
   api_secret_enc: '',
   api_endpoint: '',
   merchant_id: '',
   additional_config: '',
   is_active: true,
-}
+})
 
-function MaskedField({ label, value, onChange, required, fieldName }) {
+function MaskedField({ label, value, onChange, required }) {
   const [show, setShow] = useState(false)
   return (
     <div>
@@ -32,22 +31,28 @@ function MaskedField({ label, value, onChange, required, fieldName }) {
   )
 }
 
-export default function DeliveryTab({ company }) {
-  const [creds, setCreds] = useState(company.delivery_credentials)
+export default function DeliveryTab({ branch }) {
+  const [creds, setCreds] = useState(branch?.delivery_credentials || [])
   const [open, setOpen] = useState(false)
-  const [form, setForm] = useState(emptyForm)
+  const [form, setForm] = useState(() => getEmptyForm(branch?.id))
   const [editing, setEditing] = useState(null)
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
-  const openAdd = () => { setForm(emptyForm); setEditing(null); setOpen(true) }
-  const openEdit = (c) => { setForm({ ...c, scope: c.scope || 'company' }); setEditing(c.id); setOpen(true) }
+  const openAdd = () => { setForm(getEmptyForm(branch?.id)); setEditing(null); setOpen(true) }
+  const openEdit = (c) => { setForm({ ...c }); setEditing(c.id); setOpen(true) }
 
   const handleSave = () => {
+    let updated
     if (editing) {
-      setCreds(prev => prev.map(c => c.id === editing ? { ...form, id: editing } : c))
+      updated = creds.map(c => c.id === editing ? { ...form, id: editing, branch_id: branch?.id } : c)
     } else {
-      setCreds(prev => [...prev, { ...form, id: Date.now() }])
+      updated = [...creds, { ...form, id: Date.now(), branch_id: branch?.id }]
+    }
+    setCreds(updated)
+    const target = branches.find(b => b.id === branch?.id)
+    if (target) {
+      target.delivery_credentials = updated
     }
     setOpen(false)
   }
@@ -66,7 +71,6 @@ export default function DeliveryTab({ company }) {
           <thead>
             <tr className="border-b bg-slate-50">
               <th className="text-left px-4 py-3 font-medium text-slate-600">Provider</th>
-              <th className="text-left px-4 py-3 font-medium text-slate-600">ระดับ</th>
               <th className="text-left px-4 py-3 font-medium text-slate-600">Endpoint</th>
               <th className="text-left px-4 py-3 font-medium text-slate-600">สถานะ</th>
               <th className="px-4 py-3"></th>
@@ -74,16 +78,11 @@ export default function DeliveryTab({ company }) {
           </thead>
           <tbody className="divide-y divide-slate-100">
             {creds.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-400 text-sm">ยังไม่มี Provider — กด "เพิ่ม Provider" เพื่อเริ่มต้น</td></tr>
+              <tr><td colSpan={4} className="px-4 py-8 text-center text-slate-400 text-sm">ยังไม่มี Provider — กด "เพิ่ม Provider" เพื่อเริ่มต้น</td></tr>
             )}
             {creds.map(c => (
               <tr key={c.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3 font-medium">{c.provider_code}</td>
-                <td className="px-4 py-3">
-                  <Badge color={c.scope === 'company' ? 'gray' : 'blue'}>
-                    {c.scope === 'company' ? 'บริษัท' : 'สาขาเฉพาะ'}
-                  </Badge>
-                </td>
                 <td className="px-4 py-3 text-slate-500 text-xs font-mono">{c.api_endpoint}</td>
                 <td className="px-4 py-3">
                   <Badge color={c.is_active ? 'green' : 'red'}>{c.is_active ? 'เปิด' : 'ปิด'}</Badge>
@@ -119,20 +118,8 @@ export default function DeliveryTab({ company }) {
           </select>
         </div>
 
-        <div>
-          <label className="block text-xs font-medium text-slate-600 mb-2">ระดับ <span className="text-red-500">*</span></label>
-          <div className="flex gap-3">
-            {[{ v: 'company', l: 'บริษัท (ใช้ทุกสาขา)' }, { v: 'branch', l: 'สาขาเฉพาะ' }].map(o => (
-              <label key={o.v} className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="scope" value={o.v} checked={form.scope === o.v} onChange={e => set('scope', e.target.value)} />
-                <span className="text-sm">{o.l}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <MaskedField label="API Key" value={form.api_key_enc} onChange={e => set('api_key_enc', e.target.value)} required fieldName="api_key_enc" />
-        <MaskedField label="API Secret" value={form.api_secret_enc} onChange={e => set('api_secret_enc', e.target.value)} fieldName="api_secret_enc" />
+        <MaskedField label="API Key" value={form.api_key_enc} onChange={e => set('api_key_enc', e.target.value)} required />
+        <MaskedField label="API Secret" value={form.api_secret_enc} onChange={e => set('api_secret_enc', e.target.value)} />
 
         <div>
           <label className="block text-xs font-medium text-slate-600 mb-1">API Endpoint <span className="text-red-500">*</span></label>

@@ -1,11 +1,13 @@
 import { useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { Upload, X } from 'lucide-react'
+import { Upload, X, Network } from 'lucide-react'
 import { companies, branches, employees, provinces, cities, districts } from '../../data/mockData'
 import Breadcrumb from '../../components/Breadcrumb'
 import Badge from '../../components/Badge'
+import LineLiffTab from './tabs/LineLiffTab'
+import DeliveryTab from './tabs/DeliveryTab'
 
-const TABS = ['ข้อมูลสาขา', 'พนักงาน']
+// TABS สร้างใน component เพื่อ dynamic ตาม telepharmacy_mode (ดูด้านล่าง)
 
 function Field({ label, value }) {
   return (
@@ -16,13 +18,76 @@ function Field({ label, value }) {
   )
 }
 
+function NetworkPharmacyToggle({ value, onChange }) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2.5">
+        <Network size={16} className={value ? 'text-indigo-500' : 'text-slate-400'} />
+        <div>
+          <p className="text-sm font-medium text-slate-700">ร้านยาเครือข่าย (Network Pharmacy)</p>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {value
+              ? 'สาขานี้ถูกลงทะเบียนเป็นร้านยาเครือข่าย — ผู้ป่วย EP Mode สามารถรับยาที่สาขานี้ได้'
+              : 'สาขานี้ยังไม่ได้ลงทะเบียนเป็นร้านยาเครือข่าย'}
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => onChange(!value)}
+        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+          value ? 'bg-indigo-600' : 'bg-slate-200'
+        }`}
+        role="switch"
+        aria-checked={value}
+      >
+        <span
+          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+            value ? 'translate-x-5' : 'translate-x-0'
+          }`}
+        />
+      </button>
+    </div>
+  )
+}
+
 function BranchInfoTab({ branch }) {
-  const province   = provinces.find(p => p.id === branch.address.province_id)
-  const city       = cities.find(c => c.id === branch.address.city_id)
-  const district   = districts.find(d => d.id === branch.address.district_id)
+  const province = provinces.find(p => p.id === branch.address.province_id)
+  const city     = cities.find(c => c.id === branch.address.city_id)
+  const district = districts.find(d => d.id === branch.address.district_id)
+
+  const [isNetwork, setIsNetwork] = useState(branch.is_network_pharmacy ?? false)
+  const [saved, setSaved] = useState(false)
+
+  const handleToggle = (newValue) => {
+    setIsNetwork(newValue)
+    // mock save — production จะ call PATCH /api/v1/branches/{id} { is_network_pharmacy }
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }
 
   return (
     <div className="max-w-2xl space-y-5">
+
+      {/* Network Pharmacy Setting Card */}
+      <section className="bg-white rounded-xl p-5 border border-indigo-100 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-700">การตั้งค่าร้านยาเครือข่าย</h3>
+            {isNetwork && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+                <Network size={10} />
+                เครือข่าย
+              </span>
+            )}
+          </div>
+          {saved && (
+            <span className="text-xs text-green-600 font-medium animate-pulse">✓ บันทึกการเปลี่ยนแปลงแล้ว</span>
+          )}
+        </div>
+        <NetworkPharmacyToggle value={isNetwork} onChange={handleToggle} />
+      </section>
+
       <section className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm">
         <h3 className="text-sm font-semibold text-slate-700 mb-4">ข้อมูลทั่วไป</h3>
         <div className="grid grid-cols-2 gap-4">
@@ -120,13 +185,10 @@ function EmployeesTab({ branch }) {
         )}
         {emps.map(e => (
           <div key={e.id} className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 flex items-center gap-5">
-            {/* Avatar */}
             <AvatarUpload
               value={avatars[e.id]}
               onChange={v => setAvatars(prev => ({ ...prev, [e.id]: v }))}
             />
-
-            {/* Info */}
             <div className="flex-1 grid grid-cols-3 gap-x-6 gap-y-3">
               <div className="col-span-3 flex items-center gap-2">
                 <span className="text-base font-semibold text-slate-800">{e.first_name} {e.last_name}</span>
@@ -160,8 +222,11 @@ export default function BranchDetail() {
   const [activeTab, setActiveTab] = useState('ข้อมูลสาขา')
 
   const company = companies.find(c => c.id === Number(companyId))
-  const branch = branches.find(b => b.id === Number(branchId))
+  const branch  = branches.find(b => b.id === Number(branchId))
   if (!company || !branch) return <div className="p-8 text-slate-500">ไม่พบข้อมูล</div>
+
+  // LINE LIFF อยู่ที่ระดับสาขาทุก mode (1 LineOA per Branch)
+  const TABS = ['ข้อมูลสาขา', 'LINE LIFF', 'ผู้จัดส่ง (Delivery)', 'พนักงาน']
 
   return (
     <div className="p-8">
@@ -171,7 +236,15 @@ export default function BranchDetail() {
         { label: branch.name },
       ]} />
 
-      <h2 className="text-xl font-bold text-slate-800 mb-6">{branch.name}</h2>
+      <div className="flex items-center gap-3 mb-6">
+        <h2 className="text-xl font-bold text-slate-800">{branch.name}</h2>
+        {branch.is_network_pharmacy && (
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <Network size={12} />
+            ร้านยาเครือข่าย
+          </span>
+        )}
+      </div>
 
       <div className="flex gap-1 border-b border-slate-200 mb-6">
         {TABS.map(tab => (
@@ -185,6 +258,8 @@ export default function BranchDetail() {
       </div>
 
       {activeTab === 'ข้อมูลสาขา' && <BranchInfoTab branch={branch} />}
+      {activeTab === 'LINE LIFF' && <LineLiffTab branch={branch} />}
+      {activeTab === 'ผู้จัดส่ง (Delivery)' && <DeliveryTab company={company} branch={branch} />}
       {activeTab === 'พนักงาน' && <EmployeesTab branch={branch} />}
     </div>
   )

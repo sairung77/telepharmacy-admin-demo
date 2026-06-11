@@ -6,6 +6,7 @@ import CompanyList from './pages/companies/CompanyList'
 import CompanyDetail from './pages/companies/CompanyDetail'
 import BranchDetail from './pages/companies/BranchDetail'
 import ProviderList from './pages/providers/ProviderList'
+import MedicationSetList from './pages/catalog/MedicationSetList'
 
 function RequireAuth({ children }) {
   const isLoggedIn = localStorage.getItem('admin_auth') === 'true'
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="companies/:companyId" element={<CompanyDetail />} />
         <Route path="companies/:companyId/branches/:branchId" element={<BranchDetail />} />
         <Route path="providers" element={<ProviderList />} />
+        <Route path="medication-sets" element={<MedicationSetList />} />
       </Route>
     </Routes>
   )
