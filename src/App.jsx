@@ -7,6 +7,9 @@ import CompanyDetail from './pages/companies/CompanyDetail'
 import BranchDetail from './pages/companies/BranchDetail'
 import ProviderList from './pages/providers/ProviderList'
 import MedicationSetList from './pages/catalog/MedicationSetList'
+import MedicationManagementLayout from './pages/catalog/MedicationManagementLayout'
+import MedicationManagementList from './pages/catalog/MedicationManagementList'
+import MedicationManagementForm from './pages/catalog/MedicationManagementForm'
 
 function RequireAuth({ children }) {
   const isLoggedIn = localStorage.getItem('admin_auth') === 'true'
@@ -26,6 +29,11 @@ export default function App() {
         <Route path="companies/:companyId/branches/:branchId" element={<BranchDetail />} />
         <Route path="providers" element={<ProviderList />} />
         <Route path="medication-sets" element={<MedicationSetList />} />
+        <Route path="medication-management" element={<MedicationManagementLayout />}>
+          <Route index element={<MedicationManagementList />} />
+          <Route path="new" element={<MedicationManagementForm />} />
+          <Route path=":id" element={<MedicationManagementForm />} />
+        </Route>
       </Route>
     </Routes>
   )
