@@ -5,6 +5,7 @@ import Breadcrumb from '../../components/Breadcrumb'
 import Badge from '../../components/Badge'
 import GeneralTab from './tabs/GeneralTab'
 import BranchesTab from './tabs/BranchesTab'
+import PrivacyNoticeTab from './tabs/PrivacyNoticeTab'
 const modeLabel = { off: 'ปิด', pos: 'POS Mode', ep: 'EP Mode' }
 const modeColor = { off: 'red', pos: 'blue', ep: 'yellow' }
 
@@ -16,7 +17,7 @@ export default function CompanyDetail() {
   if (!company) return <div className="p-8 text-slate-500">ไม่พบร้านขายยา</div>
 
   // LINE LIFF จัดการที่ระดับสาขาทุก mode → ไม่มี tab ระดับบริษัท
-  const TABS = ['ทั่วไป', 'สาขาทั้งหมด']
+  const TABS = ['ทั่วไป', 'ตั้งค่านโยบายความเป็นส่วนตัว', 'สาขาทั้งหมด']
 
   return (
     <div className="p-8">
@@ -48,6 +49,7 @@ export default function CompanyDetail() {
       </div>
 
       {activeTab === 'ทั่วไป' && <GeneralTab company={company} />}
+      {activeTab === 'ตั้งค่านโยบายความเป็นส่วนตัว' && <PrivacyNoticeTab company={company} />}
       {activeTab === 'สาขาทั้งหมด' && <BranchesTab company={company} />}
     </div>
   )
